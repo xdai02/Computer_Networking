@@ -67,3 +67,99 @@
 \end{figure}
 
 \newpage
+
+\section{分组交换}
+
+\subsection{存储转发传输（Store-and-Forward Transmission）}
+
+在网络应用中，端系统彼此交换报文（message），报文能够包含任何数据。报文从源端系统发送到目的端系统的过程中，长报文会被划分为较小的数据块，称为分组（packet），每个分组都通过通信链路和分组交换机传送。如果源端系统发送一个$ L $ bits分组，链路的传输速率为$ R $ bits/sec，则传输该分组的时间为$ L \over R $秒。\\
+
+多数分组交换机在链路的输入端使用存储转发传输机制，存储转发传输是指在交换机能够开始向输出链路传输该分组的第一个bit之前，必须接收到整个分组。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (2,1);
+        \node at (1,0.5) {source};
+        \draw (11,0) rectangle (13,1);
+        \node at (12,0.5) {destination};
+        \draw (6.5,0.5) ellipse (0.7 and 0.5);
+        \draw[-] (6,0.9) -- (7,0.1);
+        \draw[-] (7,0.9) -- (6,0.1);
+
+        \draw[->, very thick] (2,0.5) -- (5.8,0.5);
+        \draw[->, very thick] (7.3,0.5) -- (11,0.5);
+
+        \draw (2.5,1) rectangle (3.5,2);
+        \draw (2.833,1) -- (2.833,2);
+        \draw (3.133,1) -- (3.133,2);
+        \node at (2.65,1.5) {3};
+        \node at (3,1.5) {2};
+        \node at (3.3,1.5) {1};
+    \end{tikzpicture}
+    \caption{存储转发}
+\end{figure}
+
+假设忽略传播时延（propagation delay），源端系统在时间0开始传输，路由器在时间$ L \over R $刚好接收到整个分组，之后再向输出链路开始传输，在时间$ 2 {L \over R} $整个分组被目的端系统接收。\\
+
+因此，由$ N $条速率为$ R $的链路组成的路径（在源和目的地之间有$ N - 1 $台路由器）发送一个分组，端到端的时延为
+
+\vspace{-0.5cm}
+
+\begin{align}
+    d = N {L \over R}
+\end{align}
+
+\vspace{0.5cm}
+
+\subsection{排队时延（Queuing Delay）}
+
+分组交换机的每条链路都有一个输出缓存/输出队列（output buffer / output queue）。如果到达的分组需要传输到某条链路，但发现该链路正忙于传输其它分组，该分组必须在输出缓存中等待。因此，除了存储转发时延以外，分组还要承受输出缓存的排队时延。由于缓存空间的大小是有限的，到达的分组可能发现该缓存已被填满，这种情况下将出现丢包（packet loss），到达的分组或已经排队的分组将被丢弃。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,1) rectangle (1,2);
+        \node at (0.5,1.5) {A};
+        \draw (0,-2) rectangle (1,-1);
+        \node at (0.5,-1.5) {B};
+
+        \draw (6,0) ellipse (0.7 and 0.5);
+        \draw[-] (5.5,0.3) -- (6.5,-0.3);
+        \draw[-] (5.5,-0.3) -- (6.5,0.3);
+
+        \draw[->, very thick] (1,1.5) -- (5.3,0);
+        \draw[->, very thick] (1,-1.5) -- (5.3,0);
+
+        \draw (1.5,1.5) rectangle (2.5,2);
+        \draw (1.5,-2) rectangle (2.5,-1.5);
+        \node at (4,1) {100 Mbps};
+
+        \draw (10,0) ellipse (0.7 and 0.5);
+        \draw[-] (9.5,0.3) -- (10.5,-0.3);
+        \draw[-] (9.5,-0.3) -- (10.5,0.3);
+
+        \draw[->, very thick] (6.7,0) -- (9.3,0);
+
+        \draw (7,0.5) rectangle (8.5,1);
+        \draw[-] (7.5,0.5) -- (7.5,1);
+        \draw[-] (8,0.5) -- (8,1);
+        \node at (8,-0.5) {15 Mbps};
+
+        \draw (5.5,-1.2) rectangle (6.5,-0.7);
+        \node at (6,-1) {...};
+    \end{tikzpicture}
+    \caption{排队时延}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{转发表（Forwarding Table）}
+
+路由器从输入链路获得分组，然后向输出链路发送分组，但是路由器怎样决定应当向哪一条链路发送呢？\\
+
+因特网中每一个端系统都有一个IP地址，源在发送分组时在分组首部包含了目的地的IP地址。当分组达到每一个路由器时，路由器根据转发表，为其查询适当的输出链路。\\
+
+端到端的选路过程类似于现实中的问路，每到一个地点都询问别人路线，逐步找到最终的目的地。在这个类比中，被问路的人就类似于路由器。
+
+\newpage
