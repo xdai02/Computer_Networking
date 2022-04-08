@@ -238,8 +238,8 @@ tracert www.github.com
 \end{lstlisting}
 
 \begin{tcolorbox}
-	\mybox{运行结果}
-	\begin{verbatim}
+    \mybox{运行结果}
+    \begin{verbatim}
 1     2 ms     9 ms     2 ms  HS8145V [192.168.1.1]
 2     5 ms    15 ms     5 ms  100.65.0.1
 3     5 ms     5 ms     5 ms  124.74.22.41
@@ -256,3 +256,123 @@ tracert www.github.com
 \end{tcolorbox}
 
 \newpage
+
+\section{协议层}
+
+因特网是个极其复杂的系统，因此因特网的体系存在分层的组织结构。类似一次乘飞机的过程，首先需要购票、托运行李、登机，飞行到目的地后，需要离机、认领行李，如果对航班不满意，还可以在向票务机构投诉。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (-7,8) rectangle (-3,9);
+        \node at (-5,8.5) {票务（购票）};
+
+        \draw (-7,6) rectangle (-3,7);
+        \node at (-5,6.5) {行李（托运）};
+
+        \draw (-7,4) rectangle (-3,5);
+        \node at (-5,4.5) {登机口（登机）};
+
+        \draw (-7,2) rectangle (-3,3);
+        \node at (-5,2.5) {跑道（起飞）};
+
+        \draw (-2,0) rectangle (2,1);
+        \node at (0,0.5) {飞行};
+
+        \draw (7,2) rectangle (3,3);
+        \node at (5,2.5) {跑道（降落）};
+
+        \draw (7,4) rectangle (3,5);
+        \node at (5,4.5) {登机口（离机）};
+
+        \draw (7,6) rectangle (3,7);
+        \node at (5,6.5) {行李（认领）};
+
+        \draw (7,8) rectangle (3,9);
+        \node at (5,8.5) {票务（投诉）};
+
+        \draw[->] (-5,8) -- (-5,7);
+        \draw[->] (-5,6) -- (-5,5);
+        \draw[->] (-5,4) -- (-5,3);
+        \draw[->] (-5,2) -- (-2,1);
+        \draw[->] (2,1) -- (5,2);
+        \draw[->] (5,3) -- (5,4);
+        \draw[->] (5,5) -- (5,6);
+        \draw[->] (5,7) -- (5,8);
+    \end{tikzpicture}
+    \caption{航行流程}
+\end{figure}
+
+协议分层是为了使各层之间相互独立，每一层只专注于做一类事情。各层之间相互独立，各层之间不需要关心其它层是如何实现的，只需要知道自己如何调用下层提供好的功能就可以。同时协议分层提高了整体灵活性，每一层都可以使用最适合的技术来实现，只需要保证提供的功能以及暴露的接口的规则没有改变就行。\\
+
+各层的所有协议被称为协议栈（protocol stack），TCP/IP协议栈由5个层次组成，分为是物理层、链路层、网络层、运输层和应用层。\\
+
+ISO（International Organization for Standard）为了更好地使网络应用更为普及，推出了OSI（Open System Interconnection）参考模型。但因为OSI七层模型出现地比TCP/IP五层模型晚，在OSI开始使用之前，TCP/IP已经被广泛使用，最终OSI没有在实践中被广泛应用。\\
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|c|l|}
+            \hline
+            \textbf{协议层} & \textbf{功能}                         \\
+            \hline
+            应用层          & 提供网络服务操作接口                  \\
+            \hline
+            表示层          & 对要传输的数据进行处理                \\
+            \hline
+            会话层          & 管理不同通讯节点之间的连接信息        \\
+            \hline
+            传输层          & 建立不同节点之间的网络连接            \\
+            \hline
+            网络层          & 将网络地址映射为MAC地址实现数据包转发 \\
+            \hline
+            数据链路层      & 将要发送的数据包转为数据帧            \\
+            \hline
+            物理层          & 利用物理设备实现数据的传输            \\
+            \hline
+        \end{tabular}
+    }
+    \caption{OSI七层模型}
+\end{table}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (3,7);
+        \draw (8,0) rectangle (11,7);
+        \draw (0,1) -- (3,1);
+        \draw (0,2) -- (3,2);
+        \draw (0,3) -- (3,3);
+        \draw (0,4) -- (3,4);
+        \draw (0,5) -- (3,5);
+        \draw (0,6) -- (3,6);
+        \draw (8,1) -- (11,1);
+        \draw (8,2) -- (11,2);
+        \draw (8,3) -- (11,3);
+        \draw (8,4) -- (11,4);
+        \draw (8,5) -- (11,5);
+        \draw (8,6) -- (11,6);
+
+        \draw (1.5,6.5) node{应用层};
+        \draw (1.5,5.5) node{表示层};
+        \draw (1.5,4.5) node{会话层};
+        \draw (1.5,3.5) node{传输层};
+        \draw (1.5,2.5) node{网络层};
+        \draw (1.5,1.5) node{数据链路层};
+        \draw (1.5,0.5) node{物理层};
+        \draw (9.5,6.5) node{应用层};
+        \draw (9.5,5.5) node{表示层};
+        \draw (9.5,4.5) node{会话层};
+        \draw (9.5,3.5) node{传输层};
+        \draw (9.5,2.5) node{网络层};
+        \draw (9.5,1.5) node{数据链路层};
+        \draw (9.5,0.5) node{物理层};
+
+        \draw[->, very thick] (-1,7) -- (-1,0);
+        \draw[->, very thick] (12,0) -- (12,7);
+        \draw[->] (1.5,0) -- (1.5,-1) -- (9.5,-1) -- (9.5,0);
+    \end{tikzpicture}
+    \caption{数据传输}
+\end{figure}
