@@ -1,0 +1,155 @@
+\chapter{应用层}
+
+\section{应用层协议}
+
+\subsection{网络应用}
+
+网络应用程序是指能够运行在不同端系统并通过网络彼此通信的程序。例如在Web应用程序中，有两个互相通信的程序，一个是运行在用户主机上的浏览器程序，另一个是运行在Web服务器主机上的服务器程序。\\
+
+应用程序体系结构包括Client-Server和P2P（Peer-to-Peer）两种体系结构。在Client-Server中，服务器主机一直运行处理客户端的请求。因为服务器需要有一个固定的的IP地址，因此客户端能够通过IP地址发送分组与其联系。著名的Client-Server应用程序包括Web、FTP、Telnet和电子邮件等。在Client-Server应用中，经常会出现一台单独的服务器主机不堪重负，跟不上所有客户请求的情况。例如搜索引擎（如Google、Bing、Baidu）、电商（如Amazon、eBay、Alibaba）、电子邮件（如Gmail、Yahoo!）、社交媒体（如Facebook、Instagram、Twitter、WeChat）都分步了多个数据中心，每数据中心都有数十万台服务器，必须要持续供电和维护。而在P2P中，主机之间的通信不必通过专门的服务器，很多流量密集型的应用都是P2P体系结构的，包括对等方协助下载加速器（如迅雷）、文件共享（如BitTorrent）。\\
+
+\subsection{进程通信}
+
+在同一个端系统中，多个进程可以通过进程间通信的机制相互通信，然而在不同的端系统（可能有不同的操作系统）中，需要通过网络交换报文（message）。进程通过套接字（socket）接口向网络发送或接收报文。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (3,9);
+        \draw (8,0) rectangle (11,9);
+        \draw (0,1) -- (3,1);
+        \draw (0,2) -- (3,2);
+        \draw (0,3) -- (3,3);
+        \draw (0,4) -- (3,4);
+        \draw (0,5) -- (3,5);
+        \draw (0,6.5) -- (3,6.5);
+        \draw (8,1) -- (11,1);
+        \draw (8,2) -- (11,2);
+        \draw (8,3) -- (11,3);
+        \draw (8,4) -- (11,4);
+        \draw (8,5) -- (11,5);
+        \draw (8,6.5) -- (11,6.5);
+
+        \draw (1.5,8.5) node{应用层};
+        \draw (1.5,5.5) node{表示层};
+        \draw (1.5,4.5) node{会话层};
+        \draw (1.5,3.5) node{传输层};
+        \draw (1.5,2.5) node{网络层};
+        \draw (1.5,1.5) node{数据链路层};
+        \draw (1.5,0.5) node{物理层};
+        \draw (9.5,8.5) node{应用层};
+        \draw (9.5,5.5) node{表示层};
+        \draw (9.5,4.5) node{会话层};
+        \draw (9.5,3.5) node{传输层};
+        \draw (9.5,2.5) node{网络层};
+        \draw (9.5,1.5) node{数据链路层};
+        \draw (9.5,0.5) node{物理层};
+
+        \draw (1.5,7.5) ellipse (1 and 0.5);
+        \draw (9.5,7.5) ellipse (1 and 0.5);
+        \draw (1.5,7.5) node{进程};
+        \draw (9.5,7.5) node{进程};
+
+        \draw[orange, very thick] (0.75,6) rectangle (2.25,6.75);
+        \draw[orange, very thick] (1.5,6.25) node{socket};
+        \draw[orange, very thick] (8.75,6) rectangle (10.25,6.75);
+        \draw[orange, very thick] (9.5,6.25) node{socket};
+
+        \draw[->, very thick] (-1,9) -- (-1,0);
+        \draw[->, very thick] (12,0) -- (12,9);
+        \draw[->] (1.5,0) -- (1.5,-1) -- (9.5,-1) -- (9.5,0);
+    \end{tikzpicture}
+    \caption{socket}
+\end{figure}
+
+\vspace{0.5cm}
+
+在进程发送分组的过程中，必须要标识IP地址和端口号（port number）才能将分组发送给另一主机的进程。其中IP地址用于标识主机，端口号用于指定运行在目的主机上的接收进程。由于一台主机上会运行多个应用程序，因此端口号是不可或缺的信息。一些著名的应用已经被分配了特定的端口号，例如Web服务器使用端口号80、邮件服务器（SMTP协议）进程使用端口号25。\\
+
+发送端在使用socket时必须选择一种传输层协议，不同的协议会提供不同的服务。\\
+
+一个传输层协议可以通过四个方面进行分类：
+
+\begin{enumerate}
+    \item 可靠数据传输（reliable data transfer）：分组在网络传输中可能会因溢出或损坏等原因丢失，对于电子邮件、文件传输和金融相关的应用来说，数据丢失会造成灾难性的后果，这种情况下就必须采用可靠数据传输。对于一些可以容忍丢失（loss-tolerant）的应用，例如多媒体音视频，它们能够承受一定量的数据丢失，这只会造成小干扰，而非致命性的问题。
+
+    \item 吞吐量（throughput）：传输层协议能够以特定的速率提供服务。
+
+    \item 定时（timing）：传输层协议提供定时保证。例如在网络电话或多人游戏中，较长的时间延迟会出现不自然的停顿或失去真实感。
+
+    \item 安全性（security）：传输层协议保证数据安全。例如在发送端将数据加密，并在接收端解密数据，以防在传输被中途被窃听。
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \textbf{应用} & \textbf{数据丢失} & \textbf{吞吐量}           & \textbf{时间敏感} \\
+            \hline
+            文件传输      & 不允许丢失        & 弹性                      & 不                \\
+            \hline
+            电子邮件      & 不允许丢失        & 弹性                      & 不                \\
+            \hline
+            网络电话      & 容忍丢失          & few kbps $ \sim $ 1 Mbps  & 100 ms            \\
+            \hline
+            视频会议      & 容忍丢失          & 10 kbps $ \sim $ 5 Mbps   & 100 ms            \\
+            \hline
+            交互式游戏    & 容忍丢失          & few kbps $ \sim $ 10 kbps & 100 ms            \\
+            \hline
+        \end{tabular}
+    }
+    \caption{常见应用传输服务需求}
+\end{table}
+
+\vspace{0.5cm}
+
+\subsection{TCP / UDP}
+
+TCP （Transmission Control Protocol）的特点包括：
+
+\begin{itemize}
+    \item 面向连接服务（connection-oriented service）：在应用层数据包开始发送之前，TCP让客户端和服务器之间互相交换传输层控制信息，让它们为分组的到来做好准备。在此之后，两个进程的socket就能建立起TCP连接，并可以发送报文了。在发送结束后，该TCP连接会被拆除。
+
+    \item 可靠数据传输：TCP确保了通信进程交付的数据无差错、不丢失、不重复、不乱序。
+
+    \item 拥塞控制（congestion control）
+\end{itemize}
+
+UDP（User Datagram Protocol）的特点包括：
+
+\begin{itemize}
+    \item 无连接（connectionless）
+
+    \item 不可靠数据传输：UDP不保证报文能够到达接收端，同时报文也有可能是乱序到达的。
+
+    \item 无拥塞控制
+\end{itemize}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|c|c|}
+            \hline
+            \textbf{应用} & \textbf{传输协议} \\
+            \hline
+            文件传输      & TCP               \\
+            \hline
+            电子邮件      & TCP               \\
+            \hline
+            网络电话      & UDP               \\
+            \hline
+            视频会议      & UDP               \\
+            \hline
+            交互式游戏    & UDP               \\
+            \hline
+        \end{tabular}
+    }
+    \caption{常见应用传输协议}
+\end{table}
+
+\newpage
+
+\section{HTTP}
+
+\subsection{HTTP （HyperText Transfer Protocol）}
