@@ -153,3 +153,44 @@ UDP（User Datagram Protocol）的特点包括：
 \section{HTTP}
 
 \subsection{HTTP （HyperText Transfer Protocol）}
+
+一个Web页面是由对象（object）组成的，一个对象就是一个文件，例如HTML文件、JPEG图片、JavaScript文件、CSS样式文件等。如果一个Web页面包含1个HTML文件和5个JPEG图片，那么这个Web页面就有6个对象。\\
+
+每一个对象都可以通过URL（Uniform Resource Locator）寻址，URL地址由存放对象的服务器主机名（host name）和路径名（path name）组成。例如对于http://www.someSchool.edu/someDepartment/picture.gif而言，其中主机名就是www.someSchool.edu，路径名是/someDepartment/picture.gif。\\
+
+HTTP定义在RFC 1945、RFC 7230和RFC 7540中。HTTP使用TCP作为它的支撑传输协议，客户端首先发起TCP连接，连接建立后，客户进程可以向服务器进程发送HTTP请求报文，服务器进程可以向客户进程发送HTTP响应报文。\\
+
+HTTP是一个无状态协议（stateless protocol），服务器不能存储任何关于客户的状态信息。例如某个客户在短时间内两次请求同一个对象，服务器并不会因为第一次已经向客户提供了该对象而不再作出响应，而是再次重新发送对象。\\
+
+\subsection{HTTP请求报文}
+
+一个HTTP请求报文由第一行的请求行（request line）和后续的首部行（header line）组成，每行由一个回车（carriage return）和换行（line feed）结束，在首部行之后再附加一个只包含回车换行的空行 。\\
+
+\mybox{HTTP请求报文}
+
+\begin{lstlisting}
+GET /somedir/page.html HTTP/1.1\r\n
+Host: www.someschool.edu\r\n
+Connection: close\r\n
+User-agent: Mozilla/5.0\r\n
+Accept-language: fr\r\n
+\r\n
+[entity body]
+\end{lstlisting}
+
+请求行包含3个字段：
+
+\begin{itemize}
+    \item 方法：包括GET、POST、HEAD、PUT和DELETE。
+
+    \item URL：带有请求对象的标识。
+
+    \item HTTP版本
+\end{itemize}
+
+首部行中Host指明了对象所在的主机。Connection: close表示浏览器告诉服务器不要使用持续连接，而是要求服务器在发送完对象后就关闭此连接。User-agent指明了用户代理，即向服务器发送请求的浏览器类型，例如Mozilla/5.0。服务器可以通过此信息向用户代理发送不同版本的对象。Accept-language表示用户想要获取对象的语言版本，如果服务器不存在的话，就会发送一个默认版本。\\
+
+使用GET方法时，实体部分（entity body）为空。而使用POST方法时，实体部分可以用于包含用户在表单中填写的输入值。HEAD方法与GET类似，服务器会响应，但并不返回请求对象。因此HEAD方法常用于调试跟踪。PUT方法允许用户向服务器上传对象。DELETE方法允许用户删除服务器上的对象。\\
+
+\subsection{HTTP响应报文}
+
