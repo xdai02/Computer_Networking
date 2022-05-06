@@ -164,7 +164,7 @@ HTTP是一个无状态协议（stateless protocol），服务器不能存储任�
 
 \subsection{HTTP请求报文}
 
-一个HTTP请求报文由第一行的请求行（request line）和后续的首部行（header line）组成，每行由一个回车（carriage return）和换行（line feed）结束，在首部行之后再附加一个只包含回车换行的空行 。\\
+HTTP请求报文由第一行的请求行（request line）和后续的首部行（header line）组成，每行由一个回车（carriage return）和换行（line feed）结束，在首部行之后再附加一个只包含回车换行的空行 。\\
 
 \mybox{HTTP请求报文}
 
@@ -194,3 +194,59 @@ Accept-language: fr\r\n
 
 \subsection{HTTP响应报文}
 
+HTTP响应报文由状态行（status line）、首部行（header line）和实体部分组成。\\
+
+\mybox{HTTP响应报文}
+
+\begin{lstlisting}
+HTTP/1.1 200 OK\r\n
+Connection: close\r\n
+Date: Tue, 18 Aug 2015 15:44:04 GMT\r\n
+Server: Apache/2.2.3 (CentOS)\r\n
+Last-Modified: Tue, 18 Aug 2015 15:11:03 GMT\r\n
+Content-Length: 6821\r\n
+Content-Type: text/html\r\n
+\r\n
+(data data data data data ...)
+\end{lstlisting}
+
+状态行包括了协议版本、状态码和对应状态信息。首部行中Connection: close用于告诉客户，发送完报文后将会关闭TCP连接。Date用于表示服务器生成并发送该报文的日期时间。Last-Modified用于表示对象创建或最后修改的日期时间。Content-Length用于表示被发送对象的字节数。Content-Type用于表示对象的类型。\\
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{状态码}                & \textbf{含义}                        \\
+            \hline
+            200 OK                         & 请求成功                             \\
+            \hline
+            204 No Content                 & 无内容                               \\
+            \hline
+            301 Moved Permanently          & 永久性重定向，资源被分配了新URL      \\
+            \hline
+            400 Bad Request                & 请求语法错误，服务器无法理解         \\
+            \hline
+            403 Forbidden                  & 拒绝执行请求                         \\
+            \hline
+            404 Not Found                  & 无法找到资源                         \\
+            \hline
+            500 Internal Server Error      & 服务器内部错误                       \\
+            \hline
+            503 Service Unavailable        & 由于超载或系统维护，暂时无法处理请求 \\
+            \hline
+            505 HTTP Version not supported & 不支持请求的HTTP协议的版本           \\
+            \hline
+        \end{tabular}
+    }
+    \caption{常见HTTP状态码}
+\end{table}
+
+\newpage
+
+\section{Cookie}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.15]{img/C2/2-3/1.png}
+\end{figure}
