@@ -246,7 +246,57 @@ Content-Type: text/html\r\n
 
 \section{Cookie}
 
+\subsection{Cookie}
+
+HTTP服务器是无状态的，然而一些Web站点通常希望能够识别用户，从而记住用户信息或限制用户访问。目前Cookie广泛用于记录用户登录信息，这样下次访问时可以不再输入用户名和密码了。当然这种方便也存在用户信息泄密的问题，尤其在多个用户公用一台电脑时很容易出现这样的情况。\\
+
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.15]{img/C2/2-3/1.png}
 \end{figure}
+
+例如用户首次访问Amazon，HTTP响应报文中会包含Set-cookies识别码，浏览器会将识别码添加到所管理的文件中。当用户继续浏览Amazon时，每一个HTTP请求浏览器都会从cookie文件中查询该网站的识别码，并添加到HTTP请求报文中。Amazon也可以通过cookie来维护用户希望购买的商品信息，并推荐个性化产品。
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \node at (0,15) {Client};
+        \node at (8,15) {Server};
+
+        \draw[loosely dashed, <-] (0,0) -- (0,14);
+        \draw[loosely dashed, <-] (8,0) -- (8,14);
+
+        \draw[blue, ->, thick] (0,14) -- (8,12) node[above, midway, sloped]{HTTP request};
+        \draw[blue, ->, thick] (8,12) -- (0,10) node[above, midway, sloped]{HTTP response (Set-cookie: 1678)};
+        \draw[blue, ->, thick] (0,10) -- (8,8) node[above, midway, sloped]{HTTP request (cookie: 1678)};
+        \draw[blue, ->, thick] (8,8) -- (0,6) node[above, midway, sloped]{HTTP response};
+        \draw[blue, ->, thick] (0,5) -- (8,3) node[above, midway, sloped]{HTTP request (cookie: 1678)};
+        \draw[blue, ->, thick] (8,3) -- (0,1) node[above, midway, sloped]{HTTP response};
+
+        \node at (-2,14) [cylinder, shape border rotate=90, draw, minimum height=12mm, minimum width=10mm] {};
+        \node at (-2,13) {eBay: 8734};
+
+        \node at (-2,10) [cylinder, shape border rotate=90, draw, minimum height=12mm, minimum width=10mm] {};
+        \node at (-2,9) {eBay: 8734};
+        \node at (-2,8.5) {Amazon: 1678};
+
+        \node at (-2,5) [cylinder, shape border rotate=90, draw, minimum height=12mm, minimum width=10mm] {};
+        \node at (-2,4) {eBay: 8734};
+        \node at (-2,3.5) {Amazon: 1678};
+
+        \node at (11,7) [cylinder, shape border rotate=90, draw, minimum height=12mm, minimum width=10mm] {};
+        \node at (11,6) {database};
+
+        \draw[dotted, ->, thick] (8,12) -- (11,7.7) node[above, midway, sloped]{creates ID 1678};
+        \draw[dotted, ->, thick] (8,8) -- (10.5,7.5) node[above, midway, sloped]{access};
+        \draw[dotted, ->, thick] (8,3) -- (10.5,7) node[above, midway, sloped]{access};
+    \end{tikzpicture}
+    \caption{Cookie}
+\end{figure}
+
+\newpage
+
+\section{Email}
+
+\subsection{Email}
+

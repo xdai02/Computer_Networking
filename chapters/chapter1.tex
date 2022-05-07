@@ -39,10 +39,10 @@
         \draw[loosely dashed, <-] (0,0) -- (0,5);
         \draw[loosely dashed, <-] (8,0) -- (8,5);
 
-        \draw[blue, ->, thick] (0,5) -- (4,4.5) node[above]{Hi} -- (8,4);
-        \draw[blue, ->, thick] (8,4) -- (4,3.5) node[above]{Hi} -- (0,3);
-        \draw[blue, ->, thick] (0,3) -- (4,2.5) node[above]{Got the time?} -- (8,2);
-        \draw[blue, ->, thick] (8,2) -- (4,1.5) node[above]{2:00} -- (0,1);
+        \draw[blue, ->, thick] (0,5) -- (8,4) node[above, midway, sloped]{Hi};
+        \draw[blue, ->, thick] (8,4) -- (0,3) node[above, midway, sloped]{Hi};
+        \draw[blue, ->, thick] (0,3) -- (8,2) node[above, midway, sloped]{Got the time?};
+        \draw[blue, ->, thick] (8,2) -- (0,1) node[above, midway, sloped]{2:00};
     \end{tikzpicture}
     \caption{人类协议}
 \end{figure}
@@ -58,10 +58,10 @@
         \draw[loosely dashed, <-] (0,0) -- (0,8);
         \draw[loosely dashed, <-] (8,0) -- (8,8);
 
-        \draw[blue, ->, thick] (0,8) -- (4,7) node[above]{TCP connection request} -- (8,6);
-        \draw[blue, ->, thick] (8,6) -- (4,5) node[above]{TCP connection reply} -- (0,4);
-        \draw[blue, ->, thick] (0,4) -- (4,3) node[above]{Get http://www.awl.com/kurose-ross} -- (8,2);
-        \draw[blue, ->, thick] (8,2) -- (4,1) node[above]{<file>} -- (0,0);
+        \draw[blue, ->, thick] (0,8) -- (8,6) node[above, midway, sloped]{TCP connection request};
+        \draw[blue, ->, thick] (8,6) -- (0,4) node[above, midway, sloped]{TCP connection reply};
+        \draw[blue, ->, thick] (0,4) -- (8,2) node[above, midway, sloped]{Get http://www.awl.com/kurose-ross};
+        \draw[blue, ->, thick] (8,2) -- (0,0) node[above, midway, sloped]{<file>};
     \end{tikzpicture}
     \caption{网络协议}
 \end{figure}
