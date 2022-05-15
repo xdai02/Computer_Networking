@@ -298,5 +298,110 @@ HTTP服务器是无状态的，然而一些Web站点通常希望能够识别用�
 
 \section{Email}
 
-\subsection{Email}
+\subsection{SMTP（Simple Mail Transfer Protocol）}
 
+电子邮件系统由用户代理（user agent）、邮件服务器（mail server）和SMTP组成，其中例如Outlook、Apple Mail、Gmail就是用户代理。当Alice发送邮件时，她的用户代理就会向邮件服务器发送邮件，此时邮件被放在邮件服务器的待发报文队列中。当Bob要查看邮件时，他的用户代理就会其邮件服务器中获取该报文。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (2.5,2);
+        \node at (1.25,1.25) {Alice's};
+        \node at (1.25,0.75) {User Agent};
+
+        \draw (4,0) rectangle (6.5,2.5);
+        \node at (5.25,2) {Alice's};
+        \node at (5.25,1.5) {Mail Server};
+        \draw (4.5,0.75) rectangle (6,1);
+        \draw (4.3,0.25) rectangle (4.5,0.5);
+        \draw (4.7,0.25) rectangle (4.9,0.5);
+        \draw (5.1,0.25) rectangle (5.3,0.5);
+        \draw (5.5,0.25) rectangle (5.7,0.5);
+        \draw (5.9,0.25) rectangle (6.1,0.5);
+
+        \draw (8,0) rectangle (10.5,2.5);
+        \node at (9.25,2) {Bob's};
+        \node at (9.25,1.5) {Mail Server};
+        \draw (8.5,0.75) rectangle (10,1);
+        \draw (8.3,0.25) rectangle (8.5,0.5);
+        \draw (8.7,0.25) rectangle (8.9,0.5);
+        \draw (9.1,0.25) rectangle (9.3,0.5);
+        \draw (9.5,0.25) rectangle (9.7,0.5);
+        \draw (9.9,0.25) rectangle (10.1,0.5);
+
+        \draw (12,0) rectangle (14.5,2);
+        \node at (13.25,1.25) {Bob's};
+        \node at (13.25,0.75) {User Agent};
+
+        \draw[->, thick] (2.5,1) -- (4.5,1);
+        \draw[->, thick] (6,1) -- (8.25,0.5);
+        \draw[->, thick] (10,0.5) -- (12,1);
+    \end{tikzpicture}
+    \caption{SMTP}
+\end{figure}
+
+SMTP是电子邮件中使用的应用层协议，它使用TCP可靠数据传输服务，使用25号端口。\\
+
+SMTP使用命令和应答对报文进行传输：\\
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|c|l|}
+            \hline
+            \textbf{命令} & \textbf{描述}        \\
+            \hline
+            HELO          & 与服务器确认信息     \\
+            \hline
+            AUTH          & 登录验证             \\
+            \hline
+            MAIL FROM     & 发件人信息           \\
+            \hline
+            RCPT TO       & 收信人地址           \\
+            \hline
+            DATA          & 输入邮件基本信息     \\
+            \hline
+            FROM          & 发信人显示信息       \\
+            \hline
+            TO            & 服务器收件人显示信息 \\
+            \hline
+            SUBJECT       & 邮件标题             \\
+            \hline
+            QUIT          & 断开链接             \\
+            \hline
+        \end{tabular}
+    }
+    \caption{SMTP命令}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \setlength{\tabcolsep}{5mm}{
+        \begin{tabular}{|c|l|}
+            \hline
+            \textbf{返回码} & \textbf{含义}    \\
+            \hline
+            220             & 服务就绪         \\
+            \hline
+            250             & 请求动作成功完成 \\
+            \hline
+            235             & 认证通过         \\
+            \hline
+            221             & 处理中           \\
+            \hline
+            354             & 发送开始         \\
+            \hline
+            500             & 指令错误         \\
+            \hline
+            550             & 命令无法执行     \\
+            \hline
+        \end{tabular}
+    }
+    \caption{SMTP应答返回码}
+\end{table}
+
+\vspace{0.5cm}
+
+当用户调用用户代理查看邮件报文时就需要用到邮件访问协议。流行的邮件访问协议有邮局协议版本3（POP3）、因特网邮件访问协议（IMAP, Internet Mail Access Protocol）和HTTP。
+
+\newpage
