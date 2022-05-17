@@ -405,3 +405,73 @@ SMTP使用命令和应答对报文进行传输：\\
 当用户调用用户代理查看邮件报文时就需要用到邮件访问协议。流行的邮件访问协议有邮局协议版本3（POP3）、因特网邮件访问协议（IMAP, Internet Mail Access Protocol）和HTTP。
 
 \newpage
+
+\section{DNS}
+
+\subsection{DNS（Domain Name System）}
+
+人类可以用很多种方式来表示，比如姓名、身份证号、社保号等，但是人类会更乐意使用容易记忆的姓名而不是社保号。想象一下人们之间这样说话：“你好，我叫132-67-9875”。\\
+
+主机可以使用主机名（hostname）进行表示，例如www.google.com、www.facebook.com，这些名字便于记忆。同时主机也可以使用IP地址进行标识，一个IP地址由4个取值在0 $ \sim $ 255的字节组成，通常以点分十进制表示，如121.7.106.83。\\
+
+路由器更喜欢定长的、有层次结构的IP地址来标记主机，因此域名系统DNS的作用就是进行主机名到IP地址的转换。\\
+
+类似电话本的原理，每一个名字都对应了一个单独的电话号码。DNS最简单的设计就是只使用一个DNS服务器，其中包含所有的映射（mapping），客户端可直接将查询发往该DNS服务器。\\
+
+这种集中式的设计存在几个问题：
+
+\begin{itemize}
+    \item 单点故障（single point of failure）：如果该DNS服务器故障，整个因特网随之瘫痪。
+
+    \item 通信容量（traffic volume）：单个DNS需要处理所有DNS查询。
+
+    \item 远距离集中式数据库（distant centralized database）：单个DNS不可能与所有的客户端都相邻，一些地区需要跨越半个地球，造成严重的时延。
+
+    \item 维护（maintainance）：中央数据库庞大，需要频繁为新添加的主机更新记录。
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection{分布式层次数据库}
+
+为了处理扩展性的问题，DNS使用了大量的DNS服务器分布在全世界，并以层次方式组织。\\
+
+DNS服务器分层3类：
+
+\begin{enumerate}
+    \item 根DNS服务器
+    \item 顶级域（TLD, Top-Level Domain）DNS服务器
+    \item 权威（authoritative）DNS服务器
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+            level distance=2cm,
+            level 1/.style={sibling distance=4cm},
+            level 2/.style={sibling distance=3cm},
+            level 3/.style={sibling distance=2cm}
+        ]
+        \node {root}
+        child {
+                node {com}
+                child {node {facebook.com}}
+                child {node {amazon.com}}
+            }
+        child {
+                node {org}
+                child {node {pbs.org}}
+            }
+        child {
+                node {edu}
+                child {node {nyu.edu}}
+                child {node {umass.edu}}
+            };
+    \end{tikzpicture}
+    \caption{DNS服务器}
+\end{figure}
+
+\vspace{0.5cm}
+
+例如一个DNS客户需要获取www.amazon.com的IP地址。客户首先与根服务器之一联系，它将返回顶级域名com的TLD服务器的IP地址。接着客户与TLD服务器之一联系，它将为amazon.com返回权威服务器的IP地址。最后客户与权威服务器之一联系，它将为www.amazon.com返回IP地址。\\
+
