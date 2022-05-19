@@ -475,3 +475,115 @@ DNS服务器分层3类：
 
 例如一个DNS客户需要获取www.amazon.com的IP地址。客户首先与根服务器之一联系，它将返回顶级域名com的TLD服务器的IP地址。接着客户与TLD服务器之一联系，它将为amazon.com返回权威服务器的IP地址。最后客户与权威服务器之一联系，它将为www.amazon.com返回IP地址。\\
 
+每个ISP都有一个本地DNS服务器（local DNS server），它并不严格属于DNS的层级体系。当主机进行DNS查询时，查询会被发送到本地DNS服务器，再由该本地DNS服务器作为代理（proxy），将查询转发给层级DNS服务器。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (2,1);
+        \node at (1,0.5) {Host};
+        \draw (-1,3) rectangle (3,4);
+        \node at (1,3.5) {Local DNS server};
+        \draw (5,6) rectangle (9,7);
+        \node at (7,6.5) {root DNS server};
+        \draw (5,3) rectangle (9,4);
+        \node at (7,3.5) {TLD DNS server};
+        \draw (5,0) rectangle (10,1);
+        \node at (7.5,0.5) {authoritative DNS server};
+
+        \draw[->, blue, thick] (0.75,1) node[above, xshift=-0.2cm]{1} -- (0.75,3);
+        \draw[->, blue, thick] (0.75,4) node[above, xshift=-0.2cm]{2} -- (5,6.75);
+        \draw[->, blue, thick] (6.75,6) node[below, xshift=-0.2cm]{3} -- (6.75,4);
+        \draw[->, blue, thick] (6.75,3) node[below, xshift=-0.2cm]{4} -- (6.75,1);
+        \draw[->, blue, thick] (7.25,1) node[above, xshift=0.2cm]{5} -- (7.25,3);
+        \draw[->, blue, thick] (7.25,4) node[above, xshift=0.2cm]{6} -- (7.25,6);
+        \draw[->, blue, thick] (5,6.25) node[below, xshift=-0.2cm, yshift=-0.2cm]{7} -- (1.25,4);
+        \draw[->, blue, thick] (1.25,3) node[below, xshift=0.2cm]{8} -- (1.25,1);
+    \end{tikzpicture}
+    \caption{DNS递归查询}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (2,1);
+        \node at (1,0.5) {Host};
+        \draw (-1,3) rectangle (3,4);
+        \node at (1,3.5) {Local DNS server};
+        \draw (5,6) rectangle (9,7);
+        \node at (7,6.5) {root DNS server};
+        \draw (5,3) rectangle (9,4);
+        \node at (7,3.5) {TLD DNS server};
+        \draw (5,0) rectangle (10,1);
+        \node at (7.5,0.5) {authoritative DNS server};
+
+        \draw[->, blue, thick] (0.75,1) node[above, xshift=-0.2cm]{1} -- (0.75,3);
+        \draw[->, blue, thick] (0.75,4) node[above, xshift=-0.2cm]{2} -- (5,6.75);
+        \draw[->, blue, thick] (5,6.25) node[below, xshift=-0.2cm, yshift=-0.2cm]{3} -- (1.25,4);
+        \draw[->, blue, thick] (3,3.75) node[above, xshift=0.2cm]{4} -- (5,3.75);
+        \draw[->, blue, thick] (5,3.25) node[below, xshift=-0.2cm]{5} -- (3,3.25);
+        \draw[->, blue, thick] (2.5,3) node[right, xshift=0.5cm, yshift=-0.2cm]{6} -- (6,1);
+        \draw[->, blue, thick] (5.5,1) node[left, xshift=-0.5cm]{7} -- (2,3);
+        \draw[->, blue, thick] (1.25,3) node[below, xshift=0.2cm]{8} -- (1.25,1);
+    \end{tikzpicture}
+    \caption{DNS迭代查询}
+\end{figure}
+
+为了减少时延并减少传输DNS报文的数量，DNS使用了DNS缓存（DNS caching）。只要DNS服务器获得了IP映射，就将其缓存，因此根DNS服务器不会再被经常访问。然而IP映射并不是永久的，DNS服务器在一段时间后将会丢弃缓存信息。
+
+\newpage
+
+\section{P2P}
+
+\subsection{P2P（Peer-to-Peer）}
+
+P2P体系结构中，其中每个peer节点都能够帮助服务器来分发文件。也就是说，当一个peer节点接收到文件数据时，它可以利用自己的上载能力重新将数据分发给其它peer节点。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) rectangle (2,1);
+        \node at (1,0.5) {Server};
+        \node at (-1,0.5) [cylinder, shape border rotate=90, draw, minimum height=12mm, minimum width=10mm] {F};
+
+        \draw (4,3) rectangle (6,4);
+        \node at (5,3.5) {peer};
+        \draw (8,3) rectangle (10,4);
+        \node at (9,3.5) {peer};
+        \draw (5,-3) rectangle (7,-4);
+        \node at (6,-3.5) {peer};
+
+        \draw (5,-1) rectangle (9,1);
+        \node at (7,0) {Internet};
+
+        \draw[->, thick] (2,0.5) node[right, yshift=0.2cm]{$ u_s $} -- (5,0);
+        \draw[->, thick] (4.5,3) node[left, xshift=0.5cm, yshift=-1cm]{$ u_1 $} -- (6,1);
+        \draw[->, thick] (6.5,1) node[right, xshift=-0.5cm, yshift=1cm]{$ d_1 $} -- (5,3);
+        \draw[->, thick] (8.5,3) node[left, xshift=-0.5cm, yshift=-1cm]{$ u_2 $} -- (7.5,1);
+        \draw[->, thick] (8,1) node[right, xshift=0.5cm, yshift=1cm]{$ d_2 $} -- (9,3);
+        \draw[->, thick] (6,-3) node[left, yshift=1cm]{$ u_N $} -- (6.5,-1);
+        \draw[->, thick] (7,-1) node[right, yshift=-1cm]{$ d_N $} -- (6.5,-3);
+    \end{tikzpicture}
+    \caption{P2P}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{BitTorrent}
+
+BitTorrent是一种用于文件分发的P2P协议，其中参与一个特定文件分发的所有peer的集合被称为洪流（torrent）。在一个torrent中的peer彼此下载等长度的文件块（chunk），块长度通常为256KB。\\
+
+当一个peer节点一开始加入一个torrent时，它没有文件块。随着时间的推移，它将累积越来越多的文件块。当它下载文件块时，也为其它peer节点上载了多个文件块。peer节点一但获得了整个文件，它可以自私地离开torrent，也可以大公无私地留在torrent中并继续向其它peer节点上载文件块。\\
+
+例如，当一个peer节点Alice加入torrent时，追踪服务器随机选择一些peer节点，并将这些peer节点的IP地址发送给Alice。Alice持有这些peer节点的列表，试着与该列表上的多个peer节点创建并行的TCP连接。这里称所有与Alice成功地创建TCP连接的peer节点为邻近peer节点（neighboring peers）。\\
+
+随着时间的推移，其中的一些peer节点可能离开，而其它peer节点可能试着与Alice创建TCP连接。因此，邻近peer节点会随着时间而改变。\\
+
+在任何时刻，每个peer节点都拥有来自某文件块的子集，且不同的peer节点具有不同的文件块子集。Alice周期性地询问每个邻近peer节点它们所具有的块列表，并对当前还没有的块发出请求。\\
+
+Alice使用一种称为最稀缺优先（rarest first）的策略，其思路是根据她没有的块从她的邻居中找到拷贝数量最少的那些块，并优先请求这些稀缺块。因此，最稀缺的块会更迅速地分发，其目标是均衡每个块在torrent中的拷贝数量。
+
+\newpage
+
