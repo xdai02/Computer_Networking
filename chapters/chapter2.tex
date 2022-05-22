@@ -587,3 +587,31 @@ Alice使用一种称为最稀缺优先（rarest first）的策略，其思路是
 
 \newpage
 
+\section{视频流}
+
+\subsection{视频流（Video Streaming）}
+
+视频是由一系列的图像，以一种恒定的速率（如每秒24张或30张图像）来展现的。一幅未压缩、数字编码的图像由像素阵列（array of pixels）组成，其中每个像素都是由一些比特编码来表示亮度和颜色。\\
+
+视频的一个重要特征就是能够被压缩，因而可用比特率（bit rate）来权衡视频质量。视频有各种各样的压缩算法，对应不同的比特率。视频信息之所以存在大量可以被压缩的空间，是因为其中本身就存在大量的数据冗余。\\
+
+如果分析一个视频里的每一帧，我们会看到有许多区域是相互关联的。因此在传输比特时，可以传输颜色值及其重复次数，而不是传输多个相同的颜色值。\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{img/C2/2-7/1.png}
+    \caption{空间冗余}
+\end{figure}
+
+另一种是时间冗余，对于连续的两帧，尝试花费较少的数据量进行编码，只传输两帧之间发生改变的地方，而不用全部传输。\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{img/C2/2-7/2.png}
+    \caption{时间冗余}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{DASH（Dynamic Adaptive Streaming over HTTP）}
+
