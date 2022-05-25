@@ -631,3 +631,59 @@ CDN管理分布在多个地理位置上的服务器，在它的服务器上存�
 
 \section{Socket编程}
 
+\subsection{Socket}
+
+Socket（套接字）是对TCP/IP网络协议进行的包装（协议的抽象应用），它本身最大的特点是提供了不同进行之间的数据通讯操作。所有的网络协议的组成是非常繁琐的，如果所有的开发者去研究具体的通讯协议会对开发带来很大的难度，所以在不同的编程语言内部就会考虑对一些网络的协议进行包装。\\
+
+Socket主要是针对两种协议的包装：
+
+\begin{itemize}
+    \item 传输控制协议TCP（Transmission Control Protocol）：采用有状态的通讯机制进行传输，在通讯时会通过三次握手机制保证与一个指定节点的数据传输的可靠性，在通讯完毕后会通过四次挥手的机制关闭连接。由于在每次数据通讯前都需要消耗大量的时间进行连接控制，所以执行性能较低，且系统资源占用较大。
+
+    \item 用户数据报协议UDP（User Datagram Protocol）：采用无状态的通讯机制进行传输，没有了TCP中复杂的握手与挥手处理机制，这样就节约了大量的系统资源，同时数据传输性能较高。但是由于不保存单个节点的连接状态，所以发送的数据不一定可以被全部接收。UDP不需要连接就可以直接发送数据，并且多个接收端都可以接收同样的消息，所以使用UDP适合于广播操作。
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection{字节序（Endianness）}
+
+字节序是指多字节数据在计算机内存中存储或者网络传输时各字节的存储顺序。计算机有两种储存数据的方式，分别是大端字节序（big endian）和小端字节序（little endian）。\\
+
+例如存储两个十六进制数0x12345678和0x11223344，小端字节序把值的低位存在低地址，而大端字节序把值的高位存在低地址。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[font=\ttfamily,
+            array/.style={matrix of nodes,nodes={draw, minimum size=10mm, fill=green!30},column sep=-\pgflinewidth, row sep=0.5mm, nodes in empty cells,
+                    row 1/.style={nodes={draw=none, fill=none, minimum size=5mm}},
+                }]
+
+        \matrix[array] (array) {
+            低   &      &      &      &      &      &      & 高   \\
+            0x78 & 0x56 & 0x34 & 0x12 & 0x44 & 0x33 & 0x22 & 0x11 \\
+        };
+    \end{tikzpicture}
+    \caption{小端字节序}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[font=\ttfamily,
+            array/.style={matrix of nodes,nodes={draw, minimum size=10mm, fill=green!30},column sep=-\pgflinewidth, row sep=0.5mm, nodes in empty cells,
+                    row 1/.style={nodes={draw=none, fill=none, minimum size=5mm}},
+                }]
+
+        \matrix[array] (array) {
+            低   &      &      &      &      &      &      & 高   \\
+            0x12 & 0x34 & 0x56 & 0x78 & 0x11 & 0x22 & 0x33 & 0x44 \\
+        };
+    \end{tikzpicture}
+    \caption{大端字节序}
+\end{figure}
+
+由此引发了计算机界的大端与小端之争，不同的CPU厂商并没有达成一致。在网络通信中，RFC1700规定使用大端字节序作为网络字节序。因此不使用大端的计算机在发送数据时必须将自己的主机字节序转换为网络字节序，接收数据时需要转换成自己的主机字节序，这样就与CPU和操作系统无关了。\\
+
+htons()和htonl()可用于将主机字节序转换为网络字节序，ntohs()和ntohl()可用于将网络字节序转换为主机字节序。\\
+
+\subsection{TCP}
+
