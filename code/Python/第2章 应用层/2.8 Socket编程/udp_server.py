@@ -13,14 +13,14 @@ def main():
     while True:
         # 接收客户端发送的数据
         data, client_addr = sock.recvfrom(100)
-        print("【服务端】客户端%s（port: %s）" % client_addr, end="：")
+        print("【服务端】客户端%s:%s：" % client_addr, end="：")
         data = data.decode("UTF8")
         print(data)
         if data == "exit":
             sock.sendto("exit".encode("UTF8"))
             break
         else:
-            sock.sendto(("【服务端】%s" % data).encode("UTF8"), client_addr)
+            sock.sendto(data.encode("UTF8"), client_addr)
     
     sock.close()
 

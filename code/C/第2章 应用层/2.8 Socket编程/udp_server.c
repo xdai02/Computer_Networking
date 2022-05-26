@@ -41,17 +41,11 @@ int main() {
         recvfrom(sock, data, sizeof(data), 0, (struct sockaddr *)&client_addr, &client_size);
         printf("【服务端】接收数据：%s\n", data);
 
-        printf("server: recv ok\n");
-
         if (strcmp(data, "exit") == 0) {
             sendto(sock, "exit", strlen("exit"), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
             break;
         } else {
-            char msg[256] = {0};
-            snprintf(msg, sizeof(msg), "【服务端】%s", data);
-            printf("server: ready to send %s\n", msg);
-            sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
-            printf("server: send ok\n");
+            sendto(sock, data, strlen(data), 0, (struct sockaddr *)&client_addr, sizeof(client_addr));
         }
     }
 

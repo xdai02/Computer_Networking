@@ -44,7 +44,7 @@ int main() {
         if (strcmp(reply, "exit") == 0) {
             break;
         } else {
-            printf("%s\n", reply);
+            printf("【服务端】%s\n", reply);
         }
     }
 

@@ -15,7 +15,7 @@ def main():
         if reply == "exit":
             break
         else:
-            print(reply)
+            print("【服务端】" + reply)
 
     sock.close()
 

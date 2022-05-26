@@ -12,7 +12,7 @@ def main():
 
     # 当有客户端连接后，获取客户端的socket和地址
     client, client_addr = sock.accept()
-    print("【服务端】客户端%s（port: %s）连接到服务器" % client_addr)
+    print("【服务端】客户端%s:%s连接到服务器。" % client_addr)
 
     # 持续接收和响应信息
     while True:
@@ -23,7 +23,7 @@ def main():
             client.send("exit".encode("UTF8"))
             break
         else:
-            client.send(("【服务端】%s" % data).encode("UTF8"))
+            client.send(data.encode("UTF8"))
     
     sock.close()
 

@@ -58,9 +58,7 @@ int main() {
             send(client, "exit", strlen("exit"), 0);
             break;
         } else {
-            char msg[256] = {0};
-            snprintf(msg, sizeof(msg), "【服务端】%s", data);
-            send(client, msg, strlen(msg), 0);
+            send(client, data, strlen(data), 0);
         }
     }
 

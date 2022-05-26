@@ -33,16 +33,13 @@ int main() {
         data[strlen(data) - 1] = '\0';
 
         sendto(sock, data, strlen(data), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-        printf("client: send ok\n");
 
         char reply[128] = {0};
-        printf("client: ready to recv\n");
         recvfrom(sock, reply, sizeof(reply), 0, (struct sockaddr *)&server_addr, &server_size);
-        printf("client: recv ok %s\n", reply);
         if (strcmp(reply, "exit") == 0) {
             break;
         } else {
-            printf("%s\n", reply);
+            printf("【服务端】%s\n", reply);
         }
     }
 
