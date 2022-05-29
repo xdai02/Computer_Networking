@@ -6,15 +6,7 @@
 
 因特网是一个世界范围的计算机网络，它互联了遍及全世界数十亿的计算设备，所有这些设备都称为主机（host）或端系统（end system）。端系统通过通信链路（communication link）和分组交换机（packet switch）连接到一起，不同的链路能够以不同的速率传输数据，链路的传输速率（transmission rate）使用比特/秒（bps, bit/s）来度量。端系统通过因特网服务提供商（ISP, Internet Service Provider）接入因特网。\\
 
-当一台端系统向另一台端系统发送数据时，发送端将数据分组，发送到目的端系统，在那里进行组装。一个分组所经历的一系列通信链路和分组交换机称为路径（route / path）。分组交换类似于现实中的货物运输，在出发地将货物分开并装上多辆卡车，每辆卡车独立通过公路运输，最后在目的地卸货并重新组装。
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.8]{img/C1/1-1/1.png}
-    \caption{计算机网络}
-\end{figure}
-
-\vspace{0.5cm}
+当一台端系统向另一台端系统发送数据时，发送端将数据分组，发送到目的端系统，在那里进行组装。一个分组所经历的一系列通信链路和分组交换机称为路径（route / path）。分组交换类似于现实中的货物运输，在出发地将货物分开并装上多辆卡车，每辆卡车独立通过公路运输，最后在目的地卸货并重新组装。\\
 
 \subsection{分布式应用程序（Distributed Application）}
 
@@ -417,7 +409,28 @@ ISO（International Organization for Standard）为了更好地使网络应用�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.6]{img/C1/1-4/1.png}
+    \begin{tikzpicture}[every node/.style={minimum width=1.5cm}]
+        \draw (0,0) rectangle (2,1);
+        \node at (1,0.5) {Target};
+
+        \node[priest, evil] at (-2,3) {};
+        \node[priest, evil] at (-2,0) {};
+        \node[priest, evil] at (-2,-3) {};
+        \node[priest, evil] at (1,3) {};
+        \node[priest, evil, mirrored] at (4,3) {};
+        \node[priest, evil, mirrored] at (4,0) {};
+        \node[priest, evil, mirrored] at (4,-3) {};
+        \node[priest, evil, mirrored] at (1,-3) {};
+
+        \draw[->, thick, red] (-2,3) -- (0,1);
+        \draw[->, thick, red] (-2,0) -- (0,0.5);
+        \draw[->, thick, red] (-2,-3) -- (0,0);
+        \draw[->, thick, red] (1,3) -- (1,1);
+        \draw[->, thick, red] (4,3) -- (2,1);
+        \draw[->, thick, red] (4,0) -- (2,0.5);
+        \draw[->, thick, red] (4,-3) -- (2,0);
+        \draw[->, thick, red] (1,-3) -- (1,0);
+    \end{tikzpicture}
     \caption{DDoS}
 \end{figure}
 
@@ -429,15 +442,14 @@ IP欺骗是指伪造源IP地址，以便冒充其它系统或发件人的身份�
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[every node/.style={minimum width=1.5cm}]
         \draw (0,0) rectangle (2,1);
         \node at (1,0.5) {A};
 
         \draw (8,-4) rectangle (10,-3);
         \node at (9,-3.5) {B};
 
-        \draw[red] (5,0) rectangle (7,1);
-        \node[red] at (6,0.5) {C};
+        \node[priest, evil] at (6,1) {};
 
         \draw (1,0) -- (1,-1.5) -- (9,-1.5) -- (9,-3);
         \draw (6,0) -- (6,-1.5);
