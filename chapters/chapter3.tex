@@ -177,7 +177,7 @@ UDP首部只有4个字段，每个字段由2个字节组成，通过端口号可
 	\centering
 	\begin{tabular}{cD{.}{.}{3}}
 		  & 1011101110111011 \\
-		+ & 1                 \\
+		+ & 1                \\
 		\hline
 		= & 1011101110111100
 	\end{tabular}
@@ -190,3 +190,156 @@ UDP首部只有4个字段，每个字段由2个字节组成，通过端口号可
 当检验和错误的时候，该分组一定错误，将会被丢弃。但是当检验和没有错误时，并不能保证分组是完全正确的。虽然UDP提供差错检测，但它对差错恢复无能无力。
 
 \newpage
+
+\section{可靠数据传输}
+
+\subsection{可靠数据传输（RDT, Reliable Data Transfer）}
+
+由于可靠数据传输协议的下层协议也许是不可靠的，信道的不可靠特性决定了可靠数据传输协议的复杂性，例如TCP就是在不可靠的端到端网络层之上实现的可靠数据传输协议。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\draw (0,10) node {应用层};
+		\draw (0,5) node {传输层};
+		\draw (0,0) node {网络层};
+		\draw[dashed] (0,7.5) -- (14,7.5);
+		\draw[dashed] (0,2.5) -- (14,2.5);
+
+		\draw (2,12) rectangle (3,13);
+		\draw (5,12) rectangle (6,13);
+		\draw (8,12) rectangle (9,13);
+		\draw (11,12) rectangle (12,13);
+
+		\draw (2.5,10) ellipse (0.75 and 0.5);
+		\draw (2.5,10) node {发送};
+		\draw (5.5,10) ellipse (0.75 and 0.5);
+		\draw (5.5,10) node {接收};
+
+		\node at (4.3,5) [cylinder, shape border rotate=180, draw, minimum height=2.5cm, minimum width=1cm]{可靠信道};
+		\draw[->, very thick] (2.5,9.5) -- (2.5,5) -- (3,5);
+		\draw[->, very thick] (5.4,5) -- (5.5,5) -- (5.5,9.5);
+
+		\node at (10.3,0) [cylinder, shape border rotate=180, draw, minimum height=2.5cm, minimum width=1cm]{不可靠信道};
+		\draw (7.5,4.5) rectangle (9.5,5.5);
+		\draw (8.5,5) node {rdt};
+		\draw (10.5,4.5) rectangle (12.5,5.5);
+		\draw (11.5,5) node {rdt};
+
+		\draw[->, very thick] (8.5,9) -- (8.5,5.5);
+		\draw[->, very thick] (8.5,4.5) -- (8.5,0) -- (8.8,0);
+		\draw[->, very thick] (11.5,0) -- (11.5,4.5);
+		\draw[->, very thick] (11.5,5.5) -- (11.5,9);
+
+		\draw (7,6.5) node {rdt\_send()};
+		\draw (7,3.5) node {udt\_send()};
+		\draw (13,6.5) node {deliver\_data()};
+		\draw (13,3.5) node {udt\_rcv()};
+	\end{tikzpicture}
+	\caption{可靠数据传输}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{rdt 1.0：经完全可靠信道的可靠数据传输}
+
+考虑最简单的情况，假设底层信道是完全可靠的（不会出错、不会丢失）。有限状态机（FSM, Finite State Machine）可以用于描述发送方和接收方的操作。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node[state, initial, draw, align=center] (s1) {wait for\\call};
+		\draw (s1) edge[loop right] node{} (s1);
+		\draw (5,0.5) node {rdt\_send(data)};
+		\draw (2.5,0.25) -- (7.5,0.25);
+		\draw (5,0) node {pkt = make\_pkt(data)};
+		\draw (4.25,-0.5) node {udt\_send(pkt)};
+	\end{tikzpicture}
+	\caption{rdt 1.0发送端}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node[state, initial, draw, align=center] (s1) {wait for\\call};
+		\draw (s1) edge[loop right] node{} (s1);
+		\draw (5.5,0.5) node {rdt\_rcv(pkt)};
+		\draw (3,0.25) -- (8,0.25);
+		\draw (5.3,0) node {data = extract(pkt)};
+		\draw (5.2,-0.5) node {deliver\_data(data)};
+	\end{tikzpicture}
+	\caption{rdt 1.0接收端}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{rdt 2.0：经具有比特差错信道的可靠数据传输}
+
+在分组的传输、传播或缓存的过程中，分组中的比特可能会受损。类似于打电话，当接听电话的人听到并理解一句话时会说“OK”，但如果没听清，就会要求对方再说一遍。\\
+
+rdt 2.0增加了差错检验、接收方反馈和重传机制。当接收方接收到正确的报文时，就给对方一个肯定确认（ACK, positive acknowledgment），告诉他“没问题”。当接收方检测到报文错误时，就需要给对方一个否定确认（NAK, negative acknowledgment），告诉对方“你给我发的不对，重新给我发一份新的吧”。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[node distance=5cm]
+		\node[state, initial, draw, align=center] (s1) {wait for\\call};
+		\node[state, right of=s1, draw, align=center] (s2) {wait for\\ACK/NAK};
+
+		\draw[->] (s1) edge[above, bend left] node{} (s2);
+		\draw[->] (s2) edge[above, bend left] node{} (s1);
+		\draw[->] (s2) edge[loop right] node{} (s2);
+
+		\draw (0,3) node {rdt\_send(data)};
+		\draw (-2.5,2.75) -- (2.5,2.75);
+		\draw (0,2.5) node {sndpkt = make\_pkt(data)};
+		\draw (-0.8,2) node {udt\_send(sndpkt)};
+
+		\draw (9,2) node {rdt\_rcv(rcvpkt) \&\& is\_nak(rcvpkt)};
+		\draw (5.5,1.75) -- (12.5,1.75);
+		\draw (9,1.5) node {udt\_send(sndpkt)};
+
+		\draw (3,-2) node {rdt\_rcv(rcvpkt) \&\& is\_ack(rcvpkt)};
+		\draw (-0.5,-2.25) -- (6.5,-2.25);
+		\draw (3,-2.5) node {$ \wedge $};
+	\end{tikzpicture}
+	\caption{rdt 2.0发送端}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node[state, initial, draw, align=center] (s1) {wait for\\call};
+		\draw (s1) edge[loop above] node{} (s1);
+		\draw (s1) edge[loop below] node{} (s1);
+
+		\draw (4,3) node {rdt\_rcv(rcvpkt) \&\& corrupt(rcvpkt)};
+		\draw (0.5,2.75) -- (7.5,2.75);
+		\draw (3.5,2.5) node {sndpkt = make\_pkt(NAK)};
+		\draw (2.65,2) node {udt\_send(sndpkt)};
+
+		\draw (4,-1.5) node {rdt\_rcv(rcvpkt) \&\& !corrupt(rcvpkt)};
+		\draw (0.5,-1.75) -- (7.5,-1.75);
+		\draw (3.5,-2) node {data = extract(rcvpkt)};
+		\draw (3.15,-2.5) node {deliver\_data(data)};
+		\draw (3.95,-3) node {sndpkt = make\_pkt(ACK)};
+		\draw (3.1,-3.5) node {udt\_send(sndpkt)};
+	\end{tikzpicture}
+	\caption{rdt 2.0接收端}
+\end{figure}
+
+\vspace{0.5cm}
+
+发送方在将分组发送后，等待来自接收方的ACK或NAK。如果收到ACK，则代表接收方正确地接收了分组，那么就回到初始状态继续等待上层的数据。如果收到NAK，那就表示接收方没有收到正确的分组，需要进行重传并且继续处于等待ACK或NAK的状态。像这种只有当发送方接收到ACK后才能够继续发送新的报文的协议，被称为停等协议（stop-and-wait）。\\
+
+rdt 2.0看起来似乎可以运行了，但遗憾的是，它存在一个致命的缺陷——ACK或NAK也存在受损的可能性！\\
+
+当发送方收到的是一个受损的ACK或NAK时，如果发送方简单地选择直接重发分组会导致接收方收到重复的分组。\\
+
+\subsection{rdt 2.1：带序号消息协议}
+
+发送方可以为分组添加序号，接收方只需检查需要就可确定收到的分组是否重复。对于停等协议而言，序号只需要使用0和1就可以了。\\
+
