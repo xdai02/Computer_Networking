@@ -343,3 +343,77 @@ rdt 2.0看起来似乎可以运行了，但遗憾的是，它存在一个致命�
 
 发送方可以为分组添加序号，接收方只需检查需要就可确定收到的分组是否重复。对于停等协议而言，序号只需要使用0和1就可以了。\\
 
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[node distance=5cm]
+		\node[state, initial, draw, align=center] (s1) {wait for\\call 0};
+		\node[state, right of=s1, draw, align=center] (s2) {wait for\\ACK/NAK 0};
+		\node[state, below of=s2, draw, align=center] (s3) {wait for\\call 1};
+		\node[state, left of=s3, draw, align=center] (s4) {wait for\\ACK/NAK 1};
+
+		\draw[->] (s1) edge[above, bend left] node{} (s2);
+		\draw[->] (s2) edge[loop right] node{} (s2);
+		\draw[->] (s2) edge[above, bend left] node{} (s3);
+		\draw[->] (s3) edge[above, bend left] node{} (s4);
+		\draw[->] (s4) edge[loop left] node{} (s4);
+		\draw[->] (s4) edge[above, bend left] node{} (s1);
+
+		\draw (3,3) node {rdt\_send(data)};
+		\draw (0,2.75) -- (6,2.75);
+		\draw (3,2.5) node {sndpkt = make\_pkt(0, data)};
+		\draw (2,2) node {udt\_send(sndpkt)};
+
+		\draw (8.5,2.5) node {rdt\_rcv(rcvpkt) \&\&};
+		\draw (8.3,2) node {(corrupt(rcvpkt) ||};
+		\draw (8.1,1.5) node {is\_nak(rcvpkt))};
+		\draw (6.5,1.25) -- (10.5,1.25);
+		\draw (8.5,1) node {udt\_send(sndpkt)};
+
+		\draw (8,-2) node {rdt\_rcv(rcvpkt) \&\&};
+		\draw (8,-2.5) node {!corrupt(rcvpkt) \&\&};
+		\draw (7.6,-3) node {is\_ack(rcvpkt))};
+		\draw (6,-3.25) -- (10,-3.25);
+		\draw (7.5,-3.5) node {$ \wedge $};
+
+		\draw (4,-7) node {rdt\_send(data)};
+		\draw (1,-7.25) -- (7,-7.25);
+		\draw (4,-7.5) node {sndpkt = make\_pkt(1, data)};
+		\draw (3,-8) node {udt\_send(sndpkt)};
+
+		\draw (-2,-7) node {rdt\_rcv(rcvpkt) \&\&};
+		\draw (-2.2,-7.5) node {(corrupt(rcvpkt) ||};
+		\draw (-2.4,-8) node {is\_nak(rcvpkt))};
+		\draw (-4,-8.25) -- (0,-8.25);
+		\draw (-2,-8.5) node {udt\_send(sndpkt)};
+
+		\draw (-3,-2) node {rdt\_rcv(rcvpkt) \&\&};
+		\draw (-3,-2.5) node {!corrupt(rcvpkt) \&\&};
+		\draw (-3.4,-3) node {is\_ack(rcvpkt))};
+		\draw (-5,-3.25) -- (-1,-3.25);
+		\draw (-3,-3.5) node {$ \wedge $};
+	\end{tikzpicture}
+	\caption{rdt 2.1发送端}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[node distance=5cm]
+		\draw[->, thick] (-2,2) -- (-0.5,0.9);
+		\node at (-0.5,1.5) {start};
+
+		\node[state, draw, align=center] (s1) {wait for\\call 0};
+		\node[state, right of=s1, draw, align=center] (s2) {wait for\\call 1};
+
+		\draw[->] (s1) edge[above, bend left] node{} (s2);
+		\draw[->] (s2) edge[above, bend left] node{} (s1);
+		\draw[->] (s1) edge[loop left] node{} (s1);
+		\draw[->] (s2) edge[loop right] node{} (s2);
+		
+		
+	\end{tikzpicture}
+	\caption{rdt 2.1接收端}
+\end{figure}
+
+\vspace{0.5cm}
