@@ -570,3 +570,48 @@ rdt 2.2与同rdt 2.1的功能相同，但是只使用ACK。接收方每次ACK最
 
 \subsection{rdt 3.0：经具有比特差错的丢包信道的可靠数据传输}
 
+假设现在信道既可能发生错误，也可能会丢失分组。如果发送端发送的数据在半路就丢失了，那么发送方就会无休止的等待，接收方没有收到数据，也会处于等待的状态。\\
+
+因此发送方需要一个倒计时定时器（countdown timer），如果发送方在规定时间内没有收到ACK，就将该分组重传。另一种情况是，如果发送的分组并没有丢失，只是延误到达了，这样也会触发定时器重发。但是接收方可以根据分组的序号丢弃重复的分组。\\
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \node at (0,9) {Sender};
+        \node at (6,9) {Receiver};
+
+        \draw[loosely dashed, <-] (0,0) -- (0,8);
+        \draw[loosely dashed, <-] (6,0) -- (6,8);
+
+        \draw[blue, ->, thick] (0,7.5) -- (6,7) node[above, midway, sloped]{pkt0};
+        \draw[blue, ->, thick] (6,6.5) -- (0,6) node[above, midway, sloped]{ACK0};
+        \draw[blue, ->, thick] (0,5) -- (6,4.5) node[above, midway, sloped]{pkt1};
+        \draw[blue, ->, thick] (6,4) -- (0,3.5) node[above, midway, sloped]{ACK1};
+		\draw[blue, ->, thick] (0,2.5) -- (6,2) node[above, midway, sloped]{pkt0};
+        \draw[blue, ->, thick] (6,1.5) -- (0,1) node[above, midway, sloped]{ACK0};
+    \end{tikzpicture}
+    \caption{无丢包}
+\end{figure}
+
+\vspace{0.5cm}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \node at (0,10) {Sender};
+        \node at (6,10) {Receiver};
+
+        \draw[loosely dashed, <-] (0,0) -- (0,9);
+        \draw[loosely dashed, <-] (6,0) -- (6,9);
+
+        \draw[blue, ->, thick] (0,8.5) -- (6,8) node[above, midway, sloped]{pkt0};
+        \draw[blue, ->, thick] (6,7.5) -- (0,7) node[above, midway, sloped]{ACK0};
+        \draw[blue, ->, thick] (0,6) -- (3,5.75) node[above, midway, sloped]{pkt1};
+		\node[very thick, red] at (3.2,5.75) {$ \times $};
+		\draw[blue, ->, thick] (0,3.5) -- (6,3) node[above, midway, sloped]{pkt1};
+        \draw[blue, ->, thick] (6,2.5) -- (0,2) node[above, midway, sloped]{ACK1};
+		\draw[blue, ->, thick] (0,1) -- (6,0.5) node[above, midway, sloped]{pkt0};
+        \draw[blue, ->, thick] (6,0) -- (0,2) node[above, midway, sloped]{ACK0};
+    \end{tikzpicture}
+    \caption{分组丢失}
+\end{figure}
