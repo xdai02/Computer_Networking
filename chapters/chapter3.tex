@@ -717,8 +717,8 @@ rdt 3.0能够正确工作，但是性能很差。因为停等协议，导致了�
 解决流水线的差错恢复有两种基本方法：
 
 \begin{enumerate}
-    \item Go-Back-N
-    \item 选择重传（Selective Repeat）
+	\item Go-Back-N
+	\item 选择重传（Selective Repeat）
 \end{enumerate}
 
 \vspace{0.5cm}
@@ -791,6 +791,123 @@ rdt 3.0能够正确工作，但是性能很差。因为停等协议，导致了�
 		\draw[green, ->, thick] (6,9) -- (0,6);
 		\draw[green, ->, thick] (6,8.5) -- (0,5.5);
 		\draw[green, ->, thick] (6,7.5) -- (0,4.5);
+
+		\draw[blue, ->, thick] (0,6) -- (6,5.5);
+		\draw[blue, ->, thick] (0,5.5) -- (6,5);
+
+		\draw[green, ->, thick] (6,5.5) -- (3,4.5);
+		\draw[green, ->, thick] (6,5) -- (3,4);
+
+		\draw[blue, ->, thick] (0,3) -- (6,2.5);
+		\draw[blue, ->, thick] (0,2.5) -- (6,2);
+		\draw[blue, ->, thick] (0,2) -- (6,1.5);
+		\draw[blue, ->, thick] (0,1.5) -- (6,1);
+
+		\draw[green, ->, thick] (6,2.5) -- (3,2);
+		\draw[green, ->, thick] (6,2) -- (3,1.5);
+		\draw[green, ->, thick] (6,1.5) -- (3,1);
+		\draw[green, ->, thick] (6,1) -- (3,0.5);
+
+		\node at (-1,9.5) {send pkt0};
+		\node at (-1,9) {send pkt1};
+		\node at (-1,8.5) {send pkt2};
+		\node at (-1,8) {send pkt3};
+
+		\node at (8.5,9) {receive pkt0, send ack0};
+		\node at (8.5,8.5) {receive pkt1, send ack1};
+		\node at (8.5,7.5) {discard pkt3, send ack1};
+
+		\node at (-1,6) {send pkt4};
+		\node at (-1,5.5) {send pkt5};
+
+		\node at (8.5,5.5) {discard pkt4, send ack1};
+		\node at (8.5,5) {discard pkt5, send ack1};
+
+		\node at (-1,3) {send pkt2};
+		\node at (-1,2.5) {send pkt3};
+		\node at (-1,2) {send pkt4};
+		\node at (-1,1.5) {send pkt5};
+
+		\node at (8.5,2.5) {receive pkt2, send ack2};
+		\node at (8.5,2) {receive pkt2, send ack2};
+		\node at (8.5,1.5) {receive pkt2, send ack2};
+		\node at (8.5,1) {receive pkt2, send ack2};
+
+		\draw[red, thick] (-2,8.5) -- (-2.25,8.5) -- (-2.25,3) -- (-2,3);
+		\filldraw [fill=cyan] (-2.5,6) circle [radius=0.5cm];
+		\draw (-2.5,6) -- (-2.5,6.4);
+		\draw (-2.5,6) -- (-2.8,6.2);
 	\end{tikzpicture}
 	\caption{GBN}
 \end{figure}
+
+\vspace{0.5cm}
+
+\subsection{选择重传}
+
+在GBN中，单个分组的差错就能够引起大量分组的重传，其中有很多分组其实是没有必要重传的。选择重传协议只需让发送方重传有差错的分组，而对于在窗口内已经接收的分组，将会把失序的分组缓存，直到重新接收到先前丢失的分组，这时才可以将这一批分组按序交付给上层。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,11) {Sender};
+		\node at (6,11) {Receiver};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,10);
+		\draw[loosely dashed, <-] (6,0) -- (6,10);
+
+		\draw[blue, ->, thick] (0,9.5) -- (6,9);
+		\draw[blue, ->, thick] (0,9) -- (6,8.5);
+		\draw[blue, ->, thick] (0,8.5) -- (3,8.25);
+		\node[very thick, red] at (3.2,8.25) {$ \times $};
+		\draw[blue, ->, thick] (0,8) -- (6,7.5);
+
+		\draw[green, ->, thick] (6,9) -- (0,6);
+		\draw[green, ->, thick] (6,8.5) -- (0,5.5);
+		\draw[green, ->, thick] (6,7.5) -- (0,4.5);
+
+		\draw[blue, ->, thick] (0,6) -- (6,5.5);
+		\draw[blue, ->, thick] (0,5.5) -- (6,5);
+
+		\draw[green, ->, thick] (6,5.5) -- (0,2.5);
+		\draw[green, ->, thick] (6,5) -- (0,2);
+
+		\draw[blue, ->, thick] (0,3) -- (6,2.5);
+
+		\draw[green, ->, thick] (6,2.5) -- (3,1.5);
+
+		\node at (-1,9.5) {send pkt0};
+		\node at (-1,9) {send pkt1};
+		\node at (-1,8.5) {send pkt2};
+		\node at (-1,8) {send pkt3};
+
+		\node at (8.5,9) {receive pkt0, send ack0};
+		\node at (8.5,8.5) {receive pkt1, send ack1};
+		\node at (8.5,7.5) {buffer pkt3, send ack3};
+
+		\node at (-1,6) {send pkt4};
+		\node at (-1,5.5) {send pkt5};
+
+		\node at (8.5,5.5) {buffer pkt4, send ack4};
+		\node at (8.5,5) {buffer pkt5, send ack5};
+
+		\node at (-1.2,4.5) {record ack3};
+		\node at (-1,3) {send pkt2};
+
+		\node at (8.5,2.5) {receive pkt2, send ack2};
+
+		\node at (-1.2,2.5) {record ack4};
+		\node at (-1.2,2) {record ack5};
+
+		\draw[red, thick] (-2,8.5) -- (-2.25,8.5) -- (-2.25,3) -- (-2,3);
+		\filldraw [fill=cyan] (-2.5,6) circle [radius=0.5cm];
+		\draw (-2.5,6) -- (-2.5,6.4);
+		\draw (-2.5,6) -- (-2.8,6.2);
+	\end{tikzpicture}
+	\caption{选择重传}
+\end{figure}
+
+\newpage
+
+\section{面向连接运输TCP}
+
