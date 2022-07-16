@@ -4,7 +4,7 @@
 
 \subsection{传输层}
 
-传输层协议为运行在不同主机上的应用进程之间提供了逻辑通信。在发送端，运输层将应用进程的报文添加传输层首部形成传输层分组，称为报文段（segment），这个过程被称为多路复用（multiplexing）。在接收端，网络层从数据报中提取传输层报文段，并交付给传输层，传输层处理报文段，将数据交付给应用进程，这个过程被称为多路分解（demultiplexing）。\\
+传输层协议为运行在不同主机上的应用进程之间提供了逻辑通信。在发送端，传输层将应用进程的报文添加传输层首部形成传输层分组，称为报文段（segment），这个过程被称为多路复用（multiplexing）。在接收端，网络层从数据报中提取传输层报文段，并交付给传输层，传输层处理报文段，将数据交付给应用进程，这个过程被称为多路分解（demultiplexing）。\\
 
 应用层可以使用UDP和TCP这两种截然不同的传输层协议。其中UDP提供了一种不可靠、无连接的服务，因此，UDP不能保证一个进程发送的数据能够完整无缺地到达目的进程。而TCP提供了一种可靠的、面向连接的服务，通过使用流量控制、序号、确认和定时器，TCP确保正确地、按序地将数据交付给接收进程。\\
 
@@ -131,11 +131,11 @@ TCP的socket是由一个四元组来标识的，其中包括了源IP地址、源
 
 \newpage
 
-\section{无连接运输UDP}
+\section{无连接传输UDP}
 
-\subsection{无连接运输UDP}
+\subsection{无连接传输UDP}
 
-使用UDP时，在发送报文段之前，发送方和接收方的运输层实体之间没有握手。正因为如此，UDP被称为是无连接的。\\
+使用UDP时，在发送报文段之前，发送方和接收方的传输层实体之间没有握手。正因为如此，UDP被称为是无连接的。\\
 
 UDP尽最大努力将数据包交付到目的主机，但不保证可靠性和顺序，也不保证带宽及延迟要求。UDP相较于TCP的优势包括无需连接建立、无连接状态、分组首部开销小。\\
 
@@ -909,5 +909,179 @@ rdt 3.0能够正确工作，但是性能很差。因为停等协议，导致了�
 
 \newpage
 
-\section{面向连接运输TCP}
+\section{面向连接传输TCP}
 
+\subsection{TCP报文段结构}
+
+\begin{table}[!ht]
+	\center
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline
+		\multicolumn{5}{|c|}{源端口号} & \multicolumn{6}{|c|}{目的端口号}                                              \\
+		\hline
+		\multicolumn{11}{|c|}{Sequence number}                                                                         \\
+		\hline
+		\multicolumn{11}{|c|}{Acknowledgment number}                                                                   \\
+		\hline
+		首部长度                       & Unused                             & C & E & U & A & P & R & S & F & 接收窗口 \\
+		\hline
+		\multicolumn{5}{|c|}{校验和}   & \multicolumn{6}{|c|}{紧急数据指针}                                            \\
+		\hline
+		\multicolumn{11}{|c|}{选项}                                                                                    \\
+		\hline
+		\multicolumn{11}{|c|}{数据}                                                                                    \\
+		\hline
+	\end{tabular}
+	\caption{TCP报文段结构}
+\end{table}
+
+TCP报文段首部主要包括：
+
+\begin{itemize}
+	\item 源端口号/目的端口号：用于多路复用/分解上层应用的数据。
+
+	\item 检验和：检测差错。
+
+	\item 序号/确认号：用于实现可靠数据传输。
+
+	\item 接收窗口：用于流量控制，指示接收方愿意接受的字节数。
+
+	\item 首部长度：由于TCP选项字段，首部长度是可变的。通常选项字段为空，所以TCP首部的典型长度为20字节。
+
+	\item ACK：指示确认字段中的值是有效的。
+
+	\item RST/SYN/FIN：用于连接建立和拆除。
+\end{itemize}
+
+\vspace{0.5cm}
+
+\subsection{序号与确认号}
+
+TCP连接的双方都可以随机选择初始序号，这样可以降低上一条TCP连接残留的报文段被误认为是新连接的报文段的可能性（如果这两个连接恰好使用了同一个端口）。\\
+
+主机A的确认号是主机A期望从主机B收到的下一字节的序号。因为TCP只确认该流中至第一个丢失字节为止的字节，所以TCP被称为提供累计确认。\\
+
+Telnet是一个用于远程登录的应用层协议，它运行在TCP之上。假设主机A发起一个与主机B的Telnet会话，主机A的用于键入的每个字符都会被发送给主机B，主机B将回送每个字符的副本给主机A，并将这些字符显示在屏幕上，以确保发送的字符得到了处理。\\
+
+假设主机A和B的初始序号为42和79，当用户输入一个字符后，这个字符会在网络中传输两次。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,7) {A};
+		\node at (8,7) {B};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,6);
+		\draw[loosely dashed, <-] (8,0) -- (8,6);
+
+		\draw[blue, ->, thick] (0,5.5) -- (8,4.5) node[above, midway, sloped]{Seq=42, ACK=79, data=C};
+		\draw[blue, ->, thick] (8,4) -- (0,3) node[above, midway, sloped]{Seq=79, ACK=80, data=C};
+		\draw[blue, ->, thick] (0,2) -- (8,1) node[above, midway, sloped]{Seq=43, ACK=80};
+	\end{tikzpicture}
+	\caption{Telnet序号与确认号}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{可靠数据传输}
+
+TCP是建立在不可靠的、尽力而为的IP服务上的可靠数据传输协议，因此TCP采用了超时重传机制，确保了接收端收到的数据是有序无损的。\\
+
+第一种情况是，假设主机A给主机B发送一个报文段，序号是92，包含8字节数据。在发出该报文段后，主机A需要等待来自主机B的确认号为100的报文段。虽然主机B收到了A的报文段，但是B发往A的确认报文丢失了。在这种情况下，超时事件就会发生。主机A会重传相同的报文段，当主机B收到重复报文将会将其丢弃。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,7) {A};
+		\node at (6,7) {B};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,6);
+		\draw[loosely dashed, <-] (6,0) -- (6,6);
+
+		\draw[blue, ->, thick] (0,5) -- (6,4.5) node[above, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (6,4) -- (3,3.75) node[above, midway, sloped]{ACK=100};
+		\node[very thick, red] at (2.8,3.75) {$ \times $};
+		\draw[blue, ->, thick] (0,2.5) -- (6,2) node[above, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (6,1.5) -- (0,1) node[above, midway, sloped]{ACK=100};
+
+		\draw[red, thick] (-0.25,5) -- (-0.5,5) -- (-0.5,2.5) -- (-0.25,2.5);
+		\filldraw [fill=cyan] (-1.25,3.75) circle [radius=0.5cm];
+		\draw (-1.25,3.75) -- (-1.25,4.15);
+		\draw (-1.25,3.75) -- (-1.5,3.9);
+	\end{tikzpicture}
+	\caption{确认丢失}
+\end{figure}
+
+\vspace{0.5cm}
+
+第二种情况是，假设主机A连续发送了两个报文段，第一个报文段序号是92，包含8字节数据，第二个报文段序号是100，包含20字节数据。\\
+
+这两个报文段都完好无损地到达主机B，并且主机B分别发送了确认号100和120，但是这两个确认报文都没有在超时之前到达。\\
+
+当超时事件发生时，主机A将会重传序号为92的第一个报文段。此时，如果第二个报文段的ACK在新的超时之前到达，那么第二个报文段就不再会被重传。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,8) {A};
+		\node at (6,8) {B};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,7);
+		\draw[loosely dashed, <-] (6,0) -- (6,7);
+
+		\draw[blue, ->, thick] (0,6) -- (6,5.5) node[above, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (0,5) -- (6,4.5) node[above, midway, sloped]{Seq=100, 20 bytes};
+		\draw[blue, ->, thick] (6,5.5) -- (0,2.5) node[above, midway, sloped]{ACK=100};
+		\draw[blue, ->, thick] (6,4.5) -- (0,1.5) node[above, midway, sloped]{ACK=120};
+		\draw[blue, ->, thick] (0,3.5) -- (6,2) node[below, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (6,1.5) -- (0,0.5) node[above, midway, sloped]{ACK=120};
+
+		\draw[red, thick] (-0.25,6) -- (-0.5,6) -- (-0.5,3.5) -- (-0.25,3.5);
+		\filldraw [fill=cyan] (-1.25,4.75) circle [radius=0.5cm];
+		\draw (-1.25,4.75) -- (-1.25,5.15);
+		\draw (-1.25,4.75) -- (-1.5,4.9);
+
+		\draw[red, thick] (-0.25,3.5) -- (-0.5,3.5) -- (-0.5,0.5) -- (-0.25,0.5);
+		\filldraw [fill=cyan] (-1.25,2) circle [radius=0.5cm];
+		\draw (-1.25,2) -- (-1.25,2.4);
+		\draw (-1.25,2) -- (-1.5,2.2);
+	\end{tikzpicture}
+	\caption{过早超时}
+\end{figure}
+
+\vspace{0.5cm}
+
+第三种情况是，主机A发送两个报文段，其中第一个报文段的确认丢失，但是在超时事件发生之前，主机A收到了第二个报文段的确认。由于累计确认，主机知道主机B已经收到了之前所有的报文段，因此不会再重传。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,7) {A};
+		\node at (6,7) {B};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,6);
+		\draw[loosely dashed, <-] (6,0) -- (6,6);
+
+		\draw[blue, ->, thick] (0,5) -- (6,4.5) node[above, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (6,4) -- (1,3.25) node[above, midway, sloped]{ACK=100};
+		\node[very thick, red] at (0.8,3.25) {$ \times $};
+		\draw[blue, ->, thick] (0,3.5) -- (6,3) node[below, midway, sloped]{Seq=100, 20 bytes};
+		\draw[blue, ->, thick] (6,2.5) -- (0,2) node[below, midway, sloped]{ACK=120};
+
+		\draw[red, thick] (-0.25,5) -- (-0.5,5) -- (-0.5,1) -- (-0.25,1);
+		\filldraw [fill=cyan] (-1.25,3) circle [radius=0.5cm];
+		\draw (-1.25,3) -- (-1.25,3.4);
+		\draw (-1.25,3) -- (-1.5,3.2);
+	\end{tikzpicture}
+	\caption{累计确认}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{快速重传（Fast Retransmit）}
+
+超时触发重传存在一个问题，就是超时周期可能相对较长。当一个报文段丢失时，发送方就被迫延迟重传丢失的分组，因而增加了端到端时延。\\
+
+通常，发送方可在超时事件发生之前，通过注意冗余的ACK可以检测到丢包情况。因为发送方发送大量的报文段，如果一个报文段丢失，就很可能引起许多冗余ACK。\\
+
+如果发送方一旦收到3个冗余ACK，就认为该报文段已经丢失，TCP就会执行快速重传，即在该报文段超时之前就进行重传。\\
