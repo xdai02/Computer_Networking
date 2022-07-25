@@ -1085,3 +1085,64 @@ TCP是建立在不可靠的、尽力而为的IP服务上的可靠数据传输协
 通常，发送方可在超时事件发生之前，通过注意冗余的ACK可以检测到丢包情况。因为发送方发送大量的报文段，如果一个报文段丢失，就很可能引起许多冗余ACK。\\
 
 如果发送方一旦收到3个冗余ACK，就认为该报文段已经丢失，TCP就会执行快速重传，即在该报文段超时之前就进行重传。\\
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\node at (0,10) {A};
+		\node at (6,10) {B};
+
+		\draw[loosely dashed, <-] (0,0) -- (0,9);
+		\draw[loosely dashed, <-] (6,0) -- (6,9);
+
+		\draw[blue, ->, thick] (0,8.5) -- (6,8) node[above, midway, sloped]{Seq=92, 8 bytes};
+		\draw[blue, ->, thick] (0,8) -- (4,7.7) node[above, midway, sloped]{Seq=100, 20 bytes};
+		\node[very thick, red] at (4.2,7.7) {$ \times $};
+		\draw[blue, ->, thick] (0,7.5) -- (6,7) node[above, midway, sloped]{Seq=120, 15 bytes};
+		\draw[blue, ->, thick] (0,7) -- (6,6.5) node[above, midway, sloped]{Seq=135, 6 bytes};
+		\draw[blue, ->, thick] (0,6.5) -- (6,6) node[above, midway, sloped]{Seq=141, 16 bytes};
+
+		\draw[blue, ->, thick] (6,8) node[right]{ack=100} -- (0,5);
+		\draw[blue, ->, thick] (6,7) node[right]{ack=100} -- (0,4);
+		\draw[blue, ->, thick] (6,6.5) node[right]{ack=100} -- (0,3.5);
+		\draw[blue, ->, thick] (6,6) node[right]{ack=100} -- (0,3);
+
+		\draw[blue, ->, thick] (0,3) -- (6,2.5) node[above, midway, sloped]{Seq=100, 20 bytes};
+
+		\draw[red, thick] (-0.25,5) -- (-0.5,5) -- (-0.5,1) -- (-0.25,1);
+		\filldraw [fill=cyan] (-1.25,3) circle [radius=0.5cm];
+		\draw (-1.25,3) -- (-1.25,3.35);
+		\draw (-1.25,3) -- (-1.5,3.15);
+	\end{tikzpicture}
+	\caption{快速重传}
+\end{figure}
+
+\vspace{0.5cm}
+
+\subsection{TCP连接管理}
+
+TCP的运输连接包括连接建立、数据传送和连接释放三个阶段。运输连接管理就是对连接建立以及连接释放过程的管控，使其能正常运行。\\
+
+连接建立的过程被称为三次握手（three-way handshake）：
+
+\begin{enumerate}
+	\item 第一次握手：客户端的应用进程主动打开，并向服务端发出请求报文段。其首部中，SYN=1、seq=x。
+	
+	\item 第二次握手：服务器应用进程被动打开，若同意客户端的请求，则发回确认报文。其首部中，SYN=1、ACK=1、ack=x+1、seq=y。
+
+	\item 第三次握手：客户端收到确认报文后，通知上层应用进程连接已建立，并向服务器发出确认报文。其首部，ACK=1、ack=y+1。当服务器收到客户端的确认报文后，也通知其上层应用进程连接已建立。
+\end{enumerate}
+
+连接释放的过程被称为四次挥手：
+
+\begin{enumerate}
+	\item 第一次挥手：数据传输结束后，客户端应用进程发出连接释放报文段，并停止发送数据。其首部，FIN=1、seq=u。
+	
+	\item 第二次挥手：服务器收到连接释放报文段后，发出确认报文。其首部，ack=u+1、seq=v。此时本次连接就进入了半关闭状态，客户端不再向服务器发送数据，而服务器仍会继续发送。
+
+	\item 第三次挥手：若服务器已经没有要向客户端发送的数据，其应用进程就通知服务器释放TCP连接。这个阶段服务器所发出的最后一个报文的首部中，FIN=1、ACK=1、seq=w、ack=u+1。
+	
+	\item 第四次挥手：客户端收到连接释放报文段后，必须发出确认，ACK=1、seq=u+1、ack=w+1。再经过2倍最长报文段寿命MSL（Maximum Segment Lifetime），本次TCP连接真正结束。
+\end{enumerate}
+
+\newpage
