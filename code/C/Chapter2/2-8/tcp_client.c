@@ -30,10 +30,9 @@ int main() {
         exit(1);
     }
 
-	// 客户端持续与服务端交互
     while (1) {
         char data[128] = {0};
-        printf("【客户端】输入数据：");
+        printf("[Client] Enter data: ");
         fgets(data, sizeof(data), stdin);
         data[strlen(data) - 1] = '\0';
 
@@ -44,7 +43,7 @@ int main() {
         if (strcmp(reply, "exit") == 0) {
             break;
         } else {
-            printf("【服务端】%s\n", reply);
+            printf("[Server] %s\n", reply);
         }
     }
 

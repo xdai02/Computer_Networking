@@ -15,9 +15,8 @@ public class UDPClient {
         packet.setPort(SERVER_PORT);
 
         Scanner scanner = new Scanner(System.in);
-        // 客户端持续与服务端交互
         while (true) {
-            System.out.print("【客户端】输入数据：");
+            System.out.print("[Client] Enter data: ");
             String msg = scanner.nextLine();
             byte[] buffer = msg.getBytes();
             packet.setData(buffer);
@@ -28,7 +27,7 @@ public class UDPClient {
             if (reply.equals("exit")) {
                 break;
             } else {
-                System.out.println("【服务端】" + reply);
+                System.out.println("[Server] " + reply);
             }
         }
 

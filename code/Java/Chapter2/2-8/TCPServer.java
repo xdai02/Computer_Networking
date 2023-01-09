@@ -10,21 +10,19 @@ public class TCPServer {
 
     public static void main(String[] args) throws IOException {
         ServerSocket sock = new ServerSocket(SERVER_PORT);
-        System.out.println("【服务端】服务器启动完毕。");
-        System.out.println("【服务端】等待客户端连接...");
+        System.out.println("[Server] Server started.");
+        System.out.println("[Server] Waiting for connection...");
 
         Socket clientSocket = sock.accept();
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(clientSocket.getInputStream())
         );
         PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-        System.out.println("【服务端】客户端连接到服务器");
+        System.out.println("[Server] Client connected to server.");
 
-        // 持续接收和响应信息
         while(true) {
-            // 接收客户端发送的数据
             String data = reader.readLine();
-            System.out.println("【服务端】接收数据：" + data);
+            System.out.println("[Server] Received:" + data);
 
             if(data.equals("exit")) {
                 writer.println("exit");

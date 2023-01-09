@@ -7,15 +7,14 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((SERVER_HOST, SERVER_PORT))
 
-    # 客户端持续与服务端交互
     while True:     
-        msg = input("【客户端】输入数据：")
+        msg = input("[Client] Enter data: ")
         sock.send(msg.encode("UTF8"))
         reply = sock.recv(100).decode("UTF8")
         if reply == "exit":
             break
         else:
-            print("【服务端】" + reply)
+            print("[Server] " + reply)
 
     sock.close()
 

@@ -6,16 +6,15 @@ SERVER_PORT = 8080
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    # 客户端持续与服务端交互
     while True:     
-        msg = input("【客户端】输入数据：")
+        msg = input("[Client] Enter data: ")
         sock.sendto(msg.encode("UTF8"), (SERVER_HOST, SERVER_PORT))
         reply, addr = sock.recvfrom(100)
         reply = reply.decode("UTF8")
         if reply == "exit":
             break
         else:
-            print("【服务端】" + reply)
+            print("[Server] " + reply)
 
     sock.close()
 

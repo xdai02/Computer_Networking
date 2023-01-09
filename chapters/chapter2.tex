@@ -252,7 +252,7 @@ HTTP服务器是无状态的，然而一些Web站点通常希望能够识别用�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.15]{img/C2/2-3/1.png}
+    \includegraphics[scale=0.15]{img/Chapter2/2-3/1.png}
 \end{figure}
 
 例如用户首次访问Amazon，HTTP响应报文中会包含Set-cookies识别码，浏览器会将识别码添加到所管理的文件中。当用户继续浏览Amazon时，每一个HTTP请求浏览器都会从cookie文件中查询该网站的识别码，并添加到HTTP请求报文中。Amazon也可以通过cookie来维护用户希望购买的商品信息，并推荐个性化产品。
@@ -599,7 +599,7 @@ Alice使用一种称为最稀缺优先（rarest first）的策略，其思路是
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.7]{img/C2/2-7/1.png}
+    \includegraphics[scale=0.7]{img/Chapter2/2-7/1.png}
     \caption{空间冗余}
 \end{figure}
 
@@ -607,7 +607,7 @@ Alice使用一种称为最稀缺优先（rarest first）的策略，其思路是
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.7]{img/C2/2-7/2.png}
+    \includegraphics[scale=0.7]{img/Chapter2/2-7/2.png}
     \caption{时间冗余}
 \end{figure}
 
@@ -800,18 +800,16 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((SERVER_HOST, SERVER_PORT))
     sock.listen()
-    print("【服务端】服务器启动完毕。")
-    print("【服务端】等待客户端连接...")
+    print("[Server] Server started.")
+    print("[Server] Waiting for connection...")
 
-    # 当有客户端连接后，获取客户端的socket和地址
+    # Get client's socket and address
     client, client_addr = sock.accept()
-    print("【服务端】客户端%s:%s连接到服务器。" % client_addr)
+    print("[Server] Client%s:%s Connected to server." % client_addr)
 
-    # 持续接收和响应信息
     while True:
-        # 接收客户端发送的数据
         data = client.recv(100).decode("UTF8")
-        print("【服务端】接收数据：%s" % data)
+        print("[Server] Received: %s" % data)
         if data == "exit":
             client.send("exit".encode("UTF8"))
             break
@@ -821,7 +819,7 @@ def main():
     sock.close()
 
 if __name__ == "__main__":
-    main()    
+    main()
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, title=tcp\_client.py]
@@ -834,15 +832,14 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((SERVER_HOST, SERVER_PORT))
 
-    # 客户端持续与服务端交互
     while True:     
-        msg = input("【客户端】输入数据：")
+        msg = input("[Client] Enter data: ")
         sock.send(msg.encode("UTF8"))
         reply = sock.recv(100).decode("UTF8")
         if reply == "exit":
             break
         else:
-            print("【服务端】" + reply)
+            print("[Server] " + reply)
 
     sock.close()
 
@@ -869,14 +866,12 @@ SERVER_PORT = 8080
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((SERVER_HOST, SERVER_PORT))
-    print("【服务端】服务器启动完毕。")
-    print("【服务端】等待客户端连接...")
+    print("[Server] Server started.")
+    print("[Server] Waiting for connection...")
 
-    # 持续接收和响应信息
     while True:
-        # 接收客户端发送的数据
         data, client_addr = sock.recvfrom(100)
-        print("【服务端】客户端%s:%s：" % client_addr, end="：")
+        print("[Server] Client%s:%s: " % client_addr, end="：")
         data = data.decode("UTF8")
         print(data)
         if data == "exit":
@@ -900,21 +895,20 @@ SERVER_PORT = 8080
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    # 客户端持续与服务端交互
     while True:     
-        msg = input("【客户端】输入数据：")
+        msg = input("[Client] Enter data: ")
         sock.sendto(msg.encode("UTF8"), (SERVER_HOST, SERVER_PORT))
         reply, addr = sock.recvfrom(100)
         reply = reply.decode("UTF8")
         if reply == "exit":
             break
         else:
-            print("【服务端】" + reply)
+            print("[Server] " + reply)
 
     sock.close()
 
 if __name__ == "__main__":
-    main()    
+    main()
 \end{lstlisting}
 
 \newpage

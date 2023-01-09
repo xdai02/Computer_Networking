@@ -7,18 +7,16 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((SERVER_HOST, SERVER_PORT))
     sock.listen()
-    print("【服务端】服务器启动完毕。")
-    print("【服务端】等待客户端连接...")
+    print("[Server] Server started.")
+    print("[Server] Waiting for connection...")
 
-    # 当有客户端连接后，获取客户端的socket和地址
+    # Get client's socket and address
     client, client_addr = sock.accept()
-    print("【服务端】客户端%s:%s连接到服务器。" % client_addr)
+    print("[Server] Client%s:%s Connected to server." % client_addr)
 
-    # 持续接收和响应信息
     while True:
-        # 接收客户端发送的数据
         data = client.recv(100).decode("UTF8")
-        print("【服务端】接收数据：%s" % data)
+        print("[Server] Received: %s" % data)
         if data == "exit":
             client.send("exit".encode("UTF8"))
             break
